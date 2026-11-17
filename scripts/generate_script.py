@@ -5,8 +5,13 @@ api_key = os.environ.get("GEMINI_API_KEY")
 raw_topic = os.environ.get("TOPIC", "Lịch sử thế giới").strip()
 
 genai.configure(api_key=api_key)
-# Sử dụng đúng tên model chuẩn cho API key mới
-model = genai.GenerativeModel('gemini-2.5-flash')
+
+# Tự động quét và chọn model flash đang hoạt động khả dụng nhất
+available_models = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
+selected_model_name = next((m for m in available_models if 'flash' in m), available_models[0] if available_models else 'gemini-1.5-flash')
+
+print(f"Đang sử dụng model: {selected_model_name}")
+model = genai.GenerativeModel(selected_model_name)
 
 if raw_topic.lower().startswith("test"):
     mode = "TEST"
